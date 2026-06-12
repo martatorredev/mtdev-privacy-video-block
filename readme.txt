@@ -1,8 +1,6 @@
 === MTDev Privacy Video Block ===
 Contributors: martatorre
-Plugin URI:        https://github.com/martatorredev/mtdev-privacy-video-block
-Author URI:        https://martatorre.dev
-Tags: youtube, video, embed, privacy, gdpr, nocookie, gutenberg, block, accessibility
+Tags: youtube, video, embed, privacy, nocookie
 Requires at least: 6.3
 Tested up to: 7.0
 Requires PHP: 7.4
