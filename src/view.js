@@ -1,36 +1,29 @@
 /**
- * MTDev Privacy Video Block — front-end view script.
- *
- * Click-to-load: the YouTube iframe is built and injected only when the
- * visitor clicks the play button. Until then there is zero contact with
- * Google. The iframe is created with autoplay=1 so it starts right after
- * the click, and with a valid referrer policy (avoids YouTube Error 153).
+ * Click-to-load: inject the YouTube iframe only when the visitor clicks play.
  */
 ( function () {
 	'use strict';
 
 	function loadPlayer( button ) {
-		var frame = button.closest( '.mtdevpvb-frame' );
-		if ( ! frame ) {
+		const frame = button.closest( '.mtdevpvb-frame' );
+		const id = button.getAttribute( 'data-id' );
+		if ( ! frame || ! id ) {
 			return;
 		}
 
-		var id     = button.getAttribute( 'data-id' );
-		var params = button.getAttribute( 'data-params' ) || '';
-		var title  = button.getAttribute( 'data-title' ) || 'YouTube video player';
+		const params = button.getAttribute( 'data-params' ) || '';
+		const src =
+			'https://www.youtube-nocookie.com/embed/' +
+			encodeURIComponent( id ) +
+			'?autoplay=1' +
+			( params ? '&' + params : '' );
 
-		if ( ! id ) {
-			return;
-		}
-
-		var src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent( id ) +
-			'?autoplay=1' + ( params ? '&' + params : '' );
-
-		var iframe = document.createElement( 'iframe' );
+		const iframe = document.createElement( 'iframe' );
 		iframe.src = src;
-		iframe.title = title;
+		iframe.title = button.getAttribute( 'data-title' ) || 'YouTube video player';
 		iframe.setAttribute( 'frameborder', '0' );
 		iframe.setAttribute( 'loading', 'lazy' );
+		// Required by YouTube since late 2025, otherwise playback fails (Error 153).
 		iframe.setAttribute( 'referrerpolicy', 'strict-origin-when-cross-origin' );
 		iframe.setAttribute(
 			'allow',
@@ -40,14 +33,11 @@
 
 		frame.innerHTML = '';
 		frame.appendChild( iframe );
-
-		// Move keyboard focus into the freshly loaded player.
 		iframe.focus();
 	}
 
-	// Delegated click handler covers any number of blocks on the page.
 	document.addEventListener( 'click', function ( event ) {
-		var button = event.target.closest( '.mtdevpvb-play' );
+		const button = event.target.closest( '.mtdevpvb-play' );
 		if ( button ) {
 			event.preventDefault();
 			loadPlayer( button );

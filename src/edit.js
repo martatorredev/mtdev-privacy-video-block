@@ -1,15 +1,3 @@
-/**
- * Edit component — WCAG 2.2 aware, privacy-first click-to-load.
- *
- * The editor shows the same neutral play placeholder the visitor sees before
- * clicking. No YouTube iframe is loaded in the editor, so there is no Error 153
- * and no contact with Google while editing.
- *
- * Accessibility:
- * - URL field has a programmatic label (1.3.1, 3.3.2, 4.1.2).
- * - Validation errors use <Notice> (role="alert") (4.1.3).
- * - 40px default control size (2.5.8). No autoplay in the editor (2.2.2).
- */
 import { __, sprintf } from '@wordpress/i18n';
 import { useState } from '@wordpress/element';
 import {
@@ -40,14 +28,17 @@ const ASPECT_RATIOS = [
 ];
 
 function extractVideoId( url ) {
-	if ( ! url ) return '';
+	if ( ! url ) {
+		return '';
+	}
 	url = String( url ).trim();
 	const pattern =
 		/(?:youtube(?:-nocookie)?\.com\/(?:[^/\n\s]+\/\S+\/|(?:v|e(?:mbed)?|shorts|live)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/i;
 	const match = url.match( pattern );
-	if ( match ) return match[ 1 ];
-	if ( /^[a-zA-Z0-9_-]{11}$/.test( url ) ) return url;
-	return '';
+	if ( match ) {
+		return match[ 1 ];
+	}
+	return /^[a-zA-Z0-9_-]{11}$/.test( url ) ? url : '';
 }
 
 const PlayIcon = () => (
@@ -61,9 +52,7 @@ export default function Edit( { attributes, setAttributes } ) {
 	const [ touched, setTouched ] = useState( false );
 
 	const blockProps = useBlockProps( {
-		style: attributes.maxWidth
-			? { maxWidth: attributes.maxWidth + 'px' }
-			: undefined,
+		style: attributes.maxWidth ? { maxWidth: attributes.maxWidth + 'px' } : undefined,
 	} );
 
 	const validId = extractVideoId( inputUrl );
@@ -75,7 +64,6 @@ export default function Edit( { attributes, setAttributes } ) {
 		}
 	};
 
-	// --- Empty state -----------------------------------------------------
 	if ( ! attributes.videoId ) {
 		return (
 			<div { ...blockProps }>
@@ -83,7 +71,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					icon="video-alt3"
 					label={ __( 'YouTube (Privacy)', 'mtdev-privacy-video-block' ) }
 					instructions={ __(
-						'Paste a YouTube URL. It will be embedded via youtube-nocookie.com, and nothing loads from YouTube until the visitor clicks play.',
+						'Paste a YouTube URL. It is embedded via youtube-nocookie.com, and nothing loads from YouTube until the visitor clicks play.',
 						'mtdev-privacy-video-block'
 					) }
 				>
@@ -102,7 +90,9 @@ export default function Edit( { attributes, setAttributes } ) {
 								setTouched( true );
 							} }
 							onKeyDown={ ( e ) => {
-								if ( e.key === 'Enter' ) submitUrl();
+								if ( e.key === 'Enter' ) {
+									submitUrl();
+								}
 							} }
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
@@ -129,7 +119,6 @@ export default function Edit( { attributes, setAttributes } ) {
 		);
 	}
 
-	// --- Filled state: neutral click-to-load placeholder (no iframe) -----
 	const accessibleTitle = attributes.title
 		? sprintf(
 				/* translators: %s: video title. */
@@ -137,7 +126,7 @@ export default function Edit( { attributes, setAttributes } ) {
 				attributes.title
 		  )
 		: __(
-				'YouTube video (loads on the published page when the visitor clicks play)',
+				'YouTube video (loads when the visitor clicks play)',
 				'mtdev-privacy-video-block'
 		  );
 
@@ -157,19 +146,10 @@ export default function Edit( { attributes, setAttributes } ) {
 			</BlockControls>
 
 			<InspectorControls>
-				<PanelBody
-					title={ __( 'Video settings', 'mtdev-privacy-video-block' ) }
-					initialOpen
-				>
+				<PanelBody title={ __( 'Video settings', 'mtdev-privacy-video-block' ) } initialOpen>
 					<TextControl
-						label={ __(
-							'Title (for accessibility)',
-							'mtdev-privacy-video-block'
-						) }
-						help={ __(
-							'Used as the iframe title for screen readers.',
-							'mtdev-privacy-video-block'
-						) }
+						label={ __( 'Title (for accessibility)', 'mtdev-privacy-video-block' ) }
+						help={ __( 'Used as the iframe title for screen readers.', 'mtdev-privacy-video-block' ) }
 						value={ attributes.title }
 						onChange={ ( v ) => setAttributes( { title: v } ) }
 						__next40pxDefaultSize
@@ -185,10 +165,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					/>
 					<RangeControl
 						label={ __( 'Maximum width (px)', 'mtdev-privacy-video-block' ) }
-						help={ __(
-							'0 = full width of the content area.',
-							'mtdev-privacy-video-block'
-						) }
+						help={ __( '0 = full width of the content area.', 'mtdev-privacy-video-block' ) }
 						value={ attributes.maxWidth }
 						min={ 0 }
 						max={ 1920 }
@@ -200,17 +177,12 @@ export default function Edit( { attributes, setAttributes } ) {
 						type="number"
 						min={ 0 }
 						value={ attributes.startTime }
-						onChange={ ( v ) =>
-							setAttributes( { startTime: parseInt( v, 10 ) || 0 } )
-						}
+						onChange={ ( v ) => setAttributes( { startTime: parseInt( v, 10 ) || 0 } ) }
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom
 					/>
 					<ToggleControl
-						label={ __(
-							'Show related videos at the end',
-							'mtdev-privacy-video-block'
-						) }
+						label={ __( 'Show related videos at the end', 'mtdev-privacy-video-block' ) }
 						checked={ attributes.relatedVideos }
 						onChange={ ( v ) => setAttributes( { relatedVideos: v } ) }
 						__nextHasNoMarginBottom
@@ -221,9 +193,7 @@ export default function Edit( { attributes, setAttributes } ) {
 			<figure { ...blockProps }>
 				<div
 					className="mtdevpvb-frame"
-					style={ {
-						aspectRatio: attributes.aspectRatio.replace( '/', ' / ' ),
-					} }
+					style={ { aspectRatio: attributes.aspectRatio.replace( '/', ' / ' ) } }
 				>
 					<span className="mtdevpvb-play" role="img" aria-label={ accessibleTitle }>
 						<span className="mtdevpvb-play-icon" aria-hidden="true">

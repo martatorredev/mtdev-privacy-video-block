@@ -99,13 +99,10 @@ function mtdevpvb_build_src( $video_id, $related = false, $start_time = 0 ) {
 }
 
 /**
- * Rewrite native WordPress YouTube oEmbeds to the no-cookie domain.
+ * Rewrite native YouTube oEmbeds to the no-cookie domain (also on cached HTML).
  *
- * Runs on cached oEmbed HTML too, so legacy embeds become privacy-friendly
- * without re-saving the post.
- *
- * @param string $html The oEmbed HTML.
- * @param string $url  The embedded URL.
+ * @param string $html oEmbed HTML.
+ * @param string $url  Embedded URL.
  * @return string
  */
 function mtdevpvb_rewrite_oembed_html( $html, $url ) {

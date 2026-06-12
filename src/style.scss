@@ -1,7 +1,3 @@
-/**
- * MTDev Privacy Video Block — shared styles (front end + editor).
- */
-
 .wp-block-mtdevpvb-video {
 	margin: 0 0 1.5em;
 
@@ -30,7 +26,6 @@
 		}
 	}
 
-	// --- Neutral click-to-load play button (no external assets) ----------
 	.mtdevpvb-play {
 		position: absolute;
 		inset: 0;
@@ -50,16 +45,16 @@
 		text-align: center;
 		cursor: pointer;
 		transition: background-color 0.15s ease;
-	}
 
-	.mtdevpvb-play:hover,
-	.mtdevpvb-play:focus-visible {
-		background: #262626;
-	}
+		&:hover,
+		&:focus-visible {
+			background: #262626;
+		}
 
-	.mtdevpvb-play:focus-visible {
-		outline: 3px solid #fff;
-		outline-offset: -3px;
+		&:focus-visible {
+			outline: 3px solid #fff;
+			outline-offset: -3px;
+		}
 	}
 
 	.mtdevpvb-play-icon {
@@ -70,13 +65,13 @@
 		height: 68px;
 		border-radius: 50%;
 		background: rgba( 255, 255, 255, 0.16 );
-	}
 
-	.mtdevpvb-play-icon svg {
-		width: 30px;
-		height: 30px;
-		fill: #fff;
-		margin-left: 3px; // optically centre the triangle
+		svg {
+			width: 30px;
+			height: 30px;
+			fill: #fff;
+			margin-left: 3px;
+		}
 	}
 
 	.mtdevpvb-play-text {
@@ -85,7 +80,6 @@
 		line-height: 1.2;
 	}
 
-	// WCAG 1.4.3: white text on a dark background keeps strong contrast.
 	.mtdevpvb-play-note {
 		font-size: 0.75rem;
 		line-height: 1.4;
@@ -103,7 +97,6 @@
 		text-decoration: underline;
 	}
 
-	// --- Caption ---------------------------------------------------------
 	.mtdevpvb-caption {
 		margin-top: 0.5em;
 		font-size: 0.875em;
