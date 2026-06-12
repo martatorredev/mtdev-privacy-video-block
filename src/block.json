@@ -1,0 +1,43 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "mtdevpvb/video",
+	"version": "1.0.0",
+	"title": "YouTube (Privacy)",
+	"category": "embed",
+	"icon": "video-alt3",
+	"description": "Embed a YouTube video without tracking cookies using youtube-nocookie.com. GDPR/CCPA & WCAG 2.2 friendly.",
+	"keywords": [ "youtube", "video", "embed", "privacy", "gdpr", "nocookie" ],
+	"textdomain": "mtdev-privacy-video-block",
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css",
+	"render": "file:./render.php",
+	"supports": {
+		"anchor": true,
+		"align": [ "left", "center", "right", "wide", "full" ],
+		"spacing": {
+			"margin": true,
+			"padding": false
+		},
+		"html": false,
+		"interactivity": {
+			"clientNavigation": true
+		}
+	},
+	"attributes": {
+		"url": { "type": "string", "default": "" },
+		"videoId": { "type": "string", "default": "" },
+		"title": { "type": "string", "default": "" },
+		"caption": {
+			"type": "string",
+			"source": "html",
+			"selector": "figcaption",
+			"default": ""
+		},
+		"aspectRatio": { "type": "string", "default": "16/9" },
+		"maxWidth": { "type": "number", "default": 0 },
+		"startTime": { "type": "number", "default": 0 },
+		"relatedVideos": { "type": "boolean", "default": false }
+	}
+}

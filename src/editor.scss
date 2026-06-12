@@ -1,0 +1,20 @@
+/**
+ * MTDev Privacy Video Block — editor-only styles.
+ */
+
+.mtdevpvb-placeholder-form {
+	display: flex;
+	gap: 8px;
+	align-items: flex-end;
+	width: 100%;
+	flex-wrap: wrap;
+
+	.components-base-control {
+		flex: 1 1 240px;
+		margin-bottom: 0;
+	}
+}
+
+.wp-block-mtdevpvb-video .mtdevpvb-frame {
+	min-height: 40px;
+}

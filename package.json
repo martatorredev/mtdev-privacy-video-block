@@ -1,0 +1,26 @@
+{
+	"name": "mtdev-privacy-video-block",
+	"version": "1.0.0",
+	"description": "Gutenberg block for embedding YouTube videos without tracking cookies (youtube-nocookie.com).",
+	"author": "MTDev",
+	"license": "GPL-2.0-or-later",
+	"main": "build/index.js",
+	"scripts": {
+		"build": "wp-scripts build",
+		"start": "wp-scripts start",
+		"format": "wp-scripts format",
+		"lint:js": "wp-scripts lint-js",
+		"lint:css": "wp-scripts lint-style",
+		"plugin-zip": "wp-scripts plugin-zip",
+		"makepot": "wp-scripts i18n make-pot . languages/mtdev-privacy-video-block.pot"
+	},
+	"files": [
+		"mtdev-privacy-video-block.php",
+		"build",
+		"languages",
+		"readme.txt"
+	],
+	"devDependencies": {
+		"@wordpress/scripts": "^32.0.0"
+	}
+}

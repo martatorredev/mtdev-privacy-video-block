@@ -1,0 +1,58 @@
+/**
+ * MTDev Privacy Video Block — shared styles (front end + editor).
+ */
+
+.wp-block-mtdevpvb-video {
+	margin: 0 0 1.5em;
+
+	.mtdevpvb-frame {
+		position: relative;
+		width: 100%;
+		height: 0;
+		overflow: hidden;
+		background: #000;
+		border-radius: 4px;
+
+		iframe {
+			position: absolute;
+			inset: 0;
+			width: 100%;
+			height: 100%;
+			border: 0;
+			display: block;
+		}
+	}
+
+	// Where aspect-ratio is supported, drop the padding fallback.
+	@supports ( aspect-ratio: 16 / 9 ) {
+		.mtdevpvb-frame {
+			height: auto;
+			padding-bottom: 0 !important;
+		}
+	}
+
+	// WCAG 1.4.3: do NOT lower text opacity (it reduces contrast).
+	// Inherit the theme text colour, which is expected to meet contrast.
+	.mtdevpvb-caption {
+		margin-top: 0.5em;
+		font-size: 0.875em;
+		line-height: 1.5;
+		color: inherit;
+		text-align: center;
+	}
+
+	&.aligncenter {
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+	&.alignleft {
+		float: left;
+		margin-right: 1.5em;
+	}
+
+	&.alignright {
+		float: right;
+		margin-left: 1.5em;
+	}
+}
