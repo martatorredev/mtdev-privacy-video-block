@@ -23,7 +23,6 @@
 		}
 	}
 
-	// Where aspect-ratio is supported, drop the padding fallback.
 	@supports ( aspect-ratio: 16 / 9 ) {
 		.mtdevpvb-frame {
 			height: auto;
@@ -31,8 +30,80 @@
 		}
 	}
 
-	// WCAG 1.4.3: do NOT lower text opacity (it reduces contrast).
-	// Inherit the theme text colour, which is expected to meet contrast.
+	// --- Neutral click-to-load play button (no external assets) ----------
+	.mtdevpvb-play {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 10px;
+		width: 100%;
+		height: 100%;
+		margin: 0;
+		padding: 16px;
+		border: 0;
+		background: #1a1a1a;
+		color: #fff;
+		font: inherit;
+		text-align: center;
+		cursor: pointer;
+		transition: background-color 0.15s ease;
+	}
+
+	.mtdevpvb-play:hover,
+	.mtdevpvb-play:focus-visible {
+		background: #262626;
+	}
+
+	.mtdevpvb-play:focus-visible {
+		outline: 3px solid #fff;
+		outline-offset: -3px;
+	}
+
+	.mtdevpvb-play-icon {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 68px;
+		height: 68px;
+		border-radius: 50%;
+		background: rgba( 255, 255, 255, 0.16 );
+	}
+
+	.mtdevpvb-play-icon svg {
+		width: 30px;
+		height: 30px;
+		fill: #fff;
+		margin-left: 3px; // optically centre the triangle
+	}
+
+	.mtdevpvb-play-text {
+		font-size: 1rem;
+		font-weight: 600;
+		line-height: 1.2;
+	}
+
+	// WCAG 1.4.3: white text on a dark background keeps strong contrast.
+	.mtdevpvb-play-note {
+		font-size: 0.75rem;
+		line-height: 1.4;
+		max-width: 40ch;
+		color: #e6e6e6;
+	}
+
+	.mtdevpvb-fallback {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: #fff;
+		text-decoration: underline;
+	}
+
+	// --- Caption ---------------------------------------------------------
 	.mtdevpvb-caption {
 		margin-top: 0.5em;
 		font-size: 0.875em;

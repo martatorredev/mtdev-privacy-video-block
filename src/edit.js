@@ -1,16 +1,16 @@
 /**
- * Edit component — WCAG 2.2 aware.
+ * Edit component — WCAG 2.2 aware, privacy-first click-to-load.
  *
- * Accessibility notes:
- * - The URL field has a programmatic label (1.3.1, 3.3.2, 4.1.2); it is hidden
- *   from sight only because the Placeholder already provides a visible heading
- *   and instructions.
- * - Validation errors use <Notice> (role="alert") so they are announced (4.1.3).
- * - All interactive targets use the 40px default size (2.5.8 Target Size).
- * - No autoplay, so there is no moving content to pause (2.2.2).
- * - The iframe carries a meaningful title (1.1.1, 2.4.1, 4.1.2).
+ * The editor shows the same neutral play placeholder the visitor sees before
+ * clicking. No YouTube iframe is loaded in the editor, so there is no Error 153
+ * and no contact with Google while editing.
+ *
+ * Accessibility:
+ * - URL field has a programmatic label (1.3.1, 3.3.2, 4.1.2).
+ * - Validation errors use <Notice> (role="alert") (4.1.3).
+ * - 40px default control size (2.5.8). No autoplay in the editor (2.2.2).
  */
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { useState } from '@wordpress/element';
 import {
 	useBlockProps,
@@ -50,13 +50,11 @@ function extractVideoId( url ) {
 	return '';
 }
 
-function buildSrc( videoId, related, startTime ) {
-	const params = [ 'modestbranding=1', 'rel=' + ( related ? '1' : '0' ) ];
-	if ( startTime > 0 ) params.push( 'start=' + startTime );
-	return `https://www.youtube-nocookie.com/embed/${ encodeURIComponent(
-		videoId
-	) }?${ params.join( '&' ) }`;
-}
+const PlayIcon = () => (
+	<svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+		<path d="M8 5v14l11-7z" />
+	</svg>
+);
 
 export default function Edit( { attributes, setAttributes } ) {
 	const [ inputUrl, setInputUrl ] = useState( attributes.url || '' );
@@ -85,7 +83,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					icon="video-alt3"
 					label={ __( 'YouTube (Privacy)', 'mtdev-privacy-video-block' ) }
 					instructions={ __(
-						'Paste a YouTube URL. It will be embedded via youtube-nocookie.com — no tracking cookies until the visitor plays the video.',
+						'Paste a YouTube URL. It will be embedded via youtube-nocookie.com, and nothing loads from YouTube until the visitor clicks play.',
 						'mtdev-privacy-video-block'
 					) }
 				>
@@ -131,12 +129,17 @@ export default function Edit( { attributes, setAttributes } ) {
 		);
 	}
 
-	// --- Filled state ----------------------------------------------------
-	const previewSrc = buildSrc(
-		attributes.videoId,
-		attributes.relatedVideos,
-		attributes.startTime
-	);
+	// --- Filled state: neutral click-to-load placeholder (no iframe) -----
+	const accessibleTitle = attributes.title
+		? sprintf(
+				/* translators: %s: video title. */
+				__( 'YouTube video (click-to-load): %s', 'mtdev-privacy-video-block' ),
+				attributes.title
+		  )
+		: __(
+				'YouTube video (loads on the published page when the visitor clicks play)',
+				'mtdev-privacy-video-block'
+		  );
 
 	return (
 		<>
@@ -222,17 +225,20 @@ export default function Edit( { attributes, setAttributes } ) {
 						aspectRatio: attributes.aspectRatio.replace( '/', ' / ' ),
 					} }
 				>
-					<iframe
-						src={ previewSrc }
-						title={
-							attributes.title ||
-							__( 'YouTube video player', 'mtdev-privacy-video-block' )
-						}
-						frameBorder="0"
-						loading="lazy"
-						allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-						allowFullScreen
-					/>
+					<span className="mtdevpvb-play" role="img" aria-label={ accessibleTitle }>
+						<span className="mtdevpvb-play-icon" aria-hidden="true">
+							<PlayIcon />
+						</span>
+						<span className="mtdevpvb-play-text">
+							{ __( 'Load video', 'mtdev-privacy-video-block' ) }
+						</span>
+						<span className="mtdevpvb-play-note">
+							{ __(
+								'Click-to-load: nothing reaches YouTube until the visitor plays.',
+								'mtdev-privacy-video-block'
+							) }
+						</span>
+					</span>
 				</div>
 				<RichText
 					tagName="figcaption"

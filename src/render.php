@@ -1,15 +1,22 @@
 <?php
 /**
- * Server-side render template.
+ * Server-side render template (privacy-first, click-to-load).
  *
- * Available variables:
+ * No YouTube iframe — and no YouTube thumbnail — is output on page load.
+ * A neutral play button is rendered instead; the iframe is injected by
+ * view.js only when the visitor clicks. This means zero contact with Google
+ * until the user opts in (strong GDPR/CCPA posture) and no Error 153 anywhere.
  *
  * @var array    $attributes Block attributes.
- * @var string   $content    Inner content (unused, dynamic block).
+ * @var string   $content    Inner content (unused).
  * @var WP_Block $block      Block instance.
  *
  * @package MTDev\PrivacyVideoBlock
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // No direct access.
+}
 
 $mtdevpvb_video_id = isset( $attributes['videoId'] ) ? sanitize_text_field( $attributes['videoId'] ) : '';
 
@@ -32,9 +39,15 @@ $mtdevpvb_start   = isset( $attributes['startTime'] ) ? absint( $attributes['sta
 $mtdevpvb_related = ! empty( $attributes['relatedVideos'] );
 $mtdevpvb_max     = isset( $attributes['maxWidth'] ) ? absint( $attributes['maxWidth'] ) : 0;
 
-$mtdevpvb_src = function_exists( 'mtdevpvb_build_src' )
-	? mtdevpvb_build_src( $mtdevpvb_video_id, $mtdevpvb_related, $mtdevpvb_start )
-	: 'https://www.youtube-nocookie.com/embed/' . rawurlencode( $mtdevpvb_video_id );
+// Embed query params (added to the URL by view.js, together with autoplay=1).
+$mtdevpvb_query = array(
+	'rel'            => $mtdevpvb_related ? '1' : '0',
+	'modestbranding' => '1',
+);
+if ( $mtdevpvb_start > 0 ) {
+	$mtdevpvb_query['start'] = $mtdevpvb_start;
+}
+$mtdevpvb_params = http_build_query( $mtdevpvb_query );
 
 // Aspect-ratio padding fallback (% = height / width * 100).
 $mtdevpvb_ratios  = array(
@@ -46,26 +59,47 @@ $mtdevpvb_ratios  = array(
 );
 $mtdevpvb_padding = isset( $mtdevpvb_ratios[ $mtdevpvb_aspect ] ) ? $mtdevpvb_ratios[ $mtdevpvb_aspect ] : 56.25;
 
-$mtdevpvb_style = $mtdevpvb_max > 0 ? sprintf( 'max-width:%dpx;', $mtdevpvb_max ) : '';
+$mtdevpvb_style   = $mtdevpvb_max > 0 ? sprintf( 'max-width:%dpx;', $mtdevpvb_max ) : '';
+$mtdevpvb_wrapper = get_block_wrapper_attributes( array( 'style' => $mtdevpvb_style ) );
+$mtdevpvb_uid     = wp_unique_id( 'mtdevpvb-' );
 
-$mtdevpvb_wrapper = get_block_wrapper_attributes(
-	array(
-		'style' => $mtdevpvb_style,
-	)
+// Visible texts (translatable, rendered server-side).
+$mtdevpvb_label = __( 'Load video', 'mtdev-privacy-video-block' );
+$mtdevpvb_note  = __( 'Playing loads content from YouTube, which may set cookies.', 'mtdev-privacy-video-block' );
+/* translators: %s: video title. */
+$mtdevpvb_aria  = sprintf( __( 'Play video: %s', 'mtdev-privacy-video-block' ), $mtdevpvb_title );
+$mtdevpvb_watch = 'https://www.youtube.com/watch?v=' . rawurlencode( $mtdevpvb_video_id );
+
+// Neutral play button (no external assets, no Google request).
+$mtdevpvb_button = sprintf(
+	'<button type="button" class="mtdevpvb-play" data-id="%1$s" data-params="%2$s" data-title="%3$s" aria-label="%4$s">' .
+		'<span class="mtdevpvb-play-icon" aria-hidden="true">' .
+			'<svg viewBox="0 0 24 24" focusable="false"><path d="M8 5v14l11-7z"/></svg>' .
+		'</span>' .
+		'<span class="mtdevpvb-play-text">%5$s</span>' .
+		'<span class="mtdevpvb-play-note">%6$s</span>' .
+	'</button>',
+	esc_attr( $mtdevpvb_video_id ),
+	esc_attr( $mtdevpvb_params ),
+	esc_attr( $mtdevpvb_title ),
+	esc_attr( $mtdevpvb_aria ),
+	esc_html( $mtdevpvb_label ),
+	esc_html( $mtdevpvb_note )
 );
 
-// Unique id so the figcaption can label the figure (WCAG 1.3.1 / 4.1.2).
-$mtdevpvb_uid = wp_unique_id( 'mtdevpvb-' );
+// No-JS fallback: a plain link to YouTube (no tracking iframe).
+$mtdevpvb_noscript = sprintf(
+	'<noscript><a class="mtdevpvb-fallback" href="%1$s" target="_blank" rel="noopener">%2$s</a></noscript>',
+	esc_url( $mtdevpvb_watch ),
+	esc_html__( 'Watch video on YouTube', 'mtdev-privacy-video-block' )
+);
 
-$mtdevpvb_iframe = sprintf(
-	'<div class="mtdevpvb-frame" style="aspect-ratio:%1$s;padding-bottom:%2$s%%;">' .
-	'<iframe src="%3$s" title="%4$s" loading="lazy" frameborder="0" ' .
-	'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" ' .
-	'referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>',
+$mtdevpvb_frame = sprintf(
+	'<div class="mtdevpvb-frame" style="aspect-ratio:%1$s;padding-bottom:%2$s%%;">%3$s%4$s</div>',
 	esc_attr( str_replace( '/', ' / ', $mtdevpvb_aspect ) ),
 	esc_attr( $mtdevpvb_padding ),
-	esc_url( $mtdevpvb_src ),
-	esc_attr( $mtdevpvb_title )
+	$mtdevpvb_button,
+	$mtdevpvb_noscript
 );
 
 $mtdevpvb_figcaption = '';
@@ -92,15 +126,14 @@ if ( '' !== trim( wp_strip_all_tags( $mtdevpvb_caption ) ) ) {
 	);
 }
 
-// If there is a caption, associate it with the figure for assistive tech.
-$mtdevpvb_aria = '' !== $mtdevpvb_figcaption
+$mtdevpvb_label_by = '' !== $mtdevpvb_figcaption
 	? sprintf( ' aria-labelledby="%s"', esc_attr( $mtdevpvb_uid . '-cap' ) )
 	: '';
 
 printf(
 	'<figure %1$s%2$s>%3$s%4$s</figure>',
-	$mtdevpvb_wrapper, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	$mtdevpvb_aria, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	$mtdevpvb_iframe, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	$mtdevpvb_figcaption // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	$mtdevpvb_wrapper,     // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	$mtdevpvb_label_by,    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	$mtdevpvb_frame,       // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	$mtdevpvb_figcaption   // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 );
