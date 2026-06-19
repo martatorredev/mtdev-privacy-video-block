@@ -1,6 +1,6 @@
 === MTDev Privacy Video Block ===
 Contributors: martatorre
-Tags: youtube, video, embed, privacy, nocookie
+Tags: youtube, video, embed, privacy, gdpr
 Requires at least: 6.3
 Tested up to: 7.0
 Requires PHP: 7.4
